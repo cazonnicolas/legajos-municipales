@@ -109,7 +109,7 @@ export default function DashboardPage() {
   const inputBase: React.CSSProperties = { padding: "12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.35)", color: "white", outline: "none" };
 
   return (
-    <main style={{ padding: "40px 28px", minHeight: "100vh", color: "white", backgroundImage: "url('/LEGAJO.jpg')", backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
+    <main style={{ padding: "40px 28px", minHeight: "100vh", color: "white", backgroundImage: "url('//backgrounds/legajo.png')", backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 0 }} />
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto" }}>
@@ -216,4 +216,5 @@ export default function DashboardPage() {
       )}
     </main>
   );
+
 }
