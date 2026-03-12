@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+:root {
+  --foreground: #ffffff;
+}
+
+/* Reset base */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 🔥 Fondo real full screen */
+body.bg-login::before,
+body.bg-dashboard::before,
+body.bg-legajo::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  z-index: -1;
+}
+
+/* Rutas */
+body.bg-login::before {
+  background-image: url("/backgrounds/login.png");
+}
+
+body.bg-dashboard::before {
+  background-image: url("/backgrounds/dashboard.png");
+}
+
+body.bg-legajo::before {
+  background-image: url("/backgrounds/legajo.png");
+}
