@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
+// 1. Agregado useRouter aquí
+import { useParams, useRouter } from "next/navigation"; 
 import { supabase } from "@/app/lib/supabaseClient";
 
 // Constantes de Selección
@@ -27,6 +28,8 @@ const calcularEdad = (fecha: string) => {
 
 export default function FichaAgentePage() {
   const params = useParams();
+  // 2. Inicialización del router
+  const router = useRouter(); 
   const dni = params?.dni as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputNovedadRef = useRef<HTMLInputElement>(null);
@@ -58,7 +61,6 @@ export default function FichaAgentePage() {
 
   useEffect(() => { 
     if (dni) cargarTodo();
-    // Actualizar fecha/hora cada vez que se carga la página
     const ahora = new Date();
     setFechaHoraImpresion(`${ahora.toLocaleDateString()} - ${ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
   }, [dni]);
@@ -138,7 +140,7 @@ export default function FichaAgentePage() {
       await cargarTodo();
     } catch (err: any) { alert(err.message); }
   };
-
+  
   const agregarHijo = () => setHijos([...hijos, { nombre: '', fecha_nac: '' }]);
   const actualizarHijo = (idx: number, campo: string, v: string) => {
     const nh = [...hijos]; nh[idx][campo] = v; setHijos(nh);
@@ -156,7 +158,7 @@ export default function FichaAgentePage() {
         @media print {
           @page { 
             size: A4; 
-            margin: 15mm; /* Margen profesional A4 */
+            margin: 15mm; 
           }
           .no-print { display: none !important; }
           
@@ -170,7 +172,6 @@ export default function FichaAgentePage() {
             position: relative;
           }
 
-          /* Logo Municipalidad en cabecera */
           .print-header-muni {
             display: flex !important;
             justify-content: space-between;
@@ -180,7 +181,6 @@ export default function FichaAgentePage() {
             margin-bottom: 20px;
           }
 
-          /* Marca de Agua */
           .ficha-container::before {
             content: "";
             position: fixed;
@@ -225,13 +225,37 @@ export default function FichaAgentePage() {
           }
         }
 
-        /* Ocultar cabecera print en vista web */
         .print-header-muni, .footer-print-oficial { display: none; }
         @media print { .print-header-muni, .footer-print-oficial { display: flex; } }
       `}</style>
 
       <div className="max-width-print" style={{ maxWidth: "1100px", margin: "0 auto" }}>
         
+        {/* BOTÓN VOLVER ATRÁS - Agregado aquí */}
+        <div className="no-print" style={{ marginBottom: "20px" }}>
+          <button 
+            onClick={() => router.back()}
+            style={{ 
+              background: "rgba(255,255,255,0.1)", 
+              color: "white", 
+              padding: "8px 16px", 
+              border: "1px solid rgba(255,255,255,0.2)", 
+              borderRadius: "8px", 
+              cursor: "pointer", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "8px",
+              fontSize: "14px",
+              fontWeight: "bold",
+              transition: "background 0.3s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.2)"}
+            onMouseOut={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+          >
+            ← VOLVER AL LISTADO
+          </button>
+        </div>
+
         {/* Cabecera exclusiva para Impresión */}
         <div className="print-header-muni">
            <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
@@ -272,7 +296,6 @@ export default function FichaAgentePage() {
               }} />
             </div>
           </aside>
-
           <main>
             {/* SECCIÓN I: PERSONALES */}
             <section className="glass-print" style={glass as any}>
@@ -300,15 +323,15 @@ export default function FichaAgentePage() {
                 <button className="no-print" onClick={() => setShowModalLaborales(true)} style={{background:'#2563eb', border:'none', color:'white', padding:'6px 15px', borderRadius:8, cursor:'pointer'}}>✏️ EDITAR</button>
               </div>
               <div className="grid-print-layout" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "15px" }}>
-                <div><span className="label-print" style={labelStyle}>Leg. Interno</span><p className="value-print">{agente.laborales.legajo_interno || "-"}</p></div>
-                <div><span className="label-print" style={labelStyle}>Leg. Cobro</span><p className="value-print">{agente.laborales.legajo_cobro || "-"}</p></div>
-                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Secretaría</span><p className="value-print">{agente.laborales.secretaria || "-"}</p></div>
-                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Subsecretaría</span><p className="value-print">{agente.laborales.subsecretaria || "-"}</p></div>
-                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Cargo / Función</span><p className="value-print">{agente.laborales.cargo || "-"}</p></div>
-                <div><span className="label-print" style={labelStyle}>F. Ingreso</span><p className="value-print">{formatearFecha(agente.laborales.fecha_ingreso)}</p></div>
-                <div><span className="label-print" style={labelStyle}>Situación</span><p className="value-print">{agente.laborales.situacion || "-"}</p></div>
-                <div><span className="label-print" style={labelStyle}>Registro</span><p className="value-print">{agente.laborales.registro_horario || "-"}</p></div>
-                <div><span className="label-print" style={labelStyle}>Estado</span><p className="value-print" style={{fontWeight:'bold', color: agente.laborales.fecha_egreso ? '#ef4444' : '#22c55e'}}>{agente.laborales.fecha_egreso ? `BAJA (${formatearFecha(agente.laborales.fecha_egreso)})` : "ACTIVO"}</p></div>
+                <div><span className="label-print" style={labelStyle}>Leg. Interno</span><p className="value-print">{agente.laborales?.legajo_interno || "-"}</p></div>
+                <div><span className="label-print" style={labelStyle}>Leg. Cobro</span><p className="value-print">{agente.laborales?.legajo_cobro || "-"}</p></div>
+                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Secretaría</span><p className="value-print">{agente.laborales?.secretaria || "-"}</p></div>
+                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Subsecretaría</span><p className="value-print">{agente.laborales?.subsecretaria || "-"}</p></div>
+                <div style={{gridColumn:'span 2'}}><span className="label-print" style={labelStyle}>Cargo / Función</span><p className="value-print">{agente.laborales?.cargo || "-"}</p></div>
+                <div><span className="label-print" style={labelStyle}>F. Ingreso</span><p className="value-print">{formatearFecha(agente.laborales?.fecha_ingreso)}</p></div>
+                <div><span className="label-print" style={labelStyle}>Situación</span><p className="value-print">{agente.laborales?.situacion || "-"}</p></div>
+                <div><span className="label-print" style={labelStyle}>Registro</span><p className="value-print">{agente.laborales?.registro_horario || "-"}</p></div>
+                <div><span className="label-print" style={labelStyle}>Estado</span><p className="value-print" style={{fontWeight:'bold', color: agente.laborales?.fecha_egreso ? '#ef4444' : '#22c55e'}}>{agente.laborales?.fecha_egreso ? `BAJA (${formatearFecha(agente.laborales.fecha_egreso)})` : "ACTIVO"}</p></div>
               </div>
             </section>
 
@@ -386,7 +409,7 @@ export default function FichaAgentePage() {
                 <div><label style={labelStyle}>F. Nacimiento</label><input type="date" style={inputStyle} value={formatearFecha(formEdit.fecha_nacimiento)} onChange={e=>setFormEdit({...formEdit, fecha_nacimiento:e.target.value})} /></div>
                 <div><label style={labelStyle}>Estado Civil</label><select style={inputStyle} value={formEdit.estado_civil} onChange={e=>setFormEdit({...formEdit, estado_civil:e.target.value})}>{ESTADOS_CIVILES.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
                 <div><label style={labelStyle}>Nivel Estudios</label><select style={inputStyle} value={formEdit.nivel_estudios} onChange={e=>setFormEdit({...formEdit, nivel_estudios:e.target.value})}>{NIVELES_ESTUDIO.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
-                <div style={{gridColumn:'span 2'}}><label style={labelStyle}>Domicilio</label><input style={inputStyle} value={formEdit.domicilio} onChange={e=>setFormEdit({...formEdit, domicile:e.target.value})} /></div>
+                <div style={{gridColumn:'span 2'}}><label style={labelStyle}>Domicilio</label><input style={inputStyle} value={formEdit.domicilio} onChange={e=>setFormEdit({...formEdit, domicilio:e.target.value})} /></div>
                 <div><label style={labelStyle}>Barrio</label><input style={inputStyle} value={formEdit.barrio} onChange={e=>setFormEdit({...formEdit, barrio:e.target.value})} /></div>
                 
                 <div style={{gridColumn:'span 3', borderTop:'1px solid #333', marginTop:10, paddingTop:15, color:'#93c5fd', fontWeight:'bold'}}>Grupo Familiar</div>
