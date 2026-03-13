@@ -233,29 +233,24 @@ export default function FichaAgentePage() {
         
         {/* BOTÓN VOLVER ATRÁS - Agregado aquí */}
         <div className="no-print" style={{ marginBottom: "20px" }}>
-          <button 
-            onClick={() => router.back()}
-            style={{ 
-              background: "rgba(255,255,255,0.1)", 
-              color: "white", 
-              padding: "8px 16px", 
-              border: "1px solid rgba(255,255,255,0.2)", 
-              borderRadius: "8px", 
-              cursor: "pointer", 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "8px",
-              fontSize: "14px",
-              fontWeight: "bold",
-              transition: "background 0.3s"
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.2)"}
-            onMouseOut={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
-          >
-            ← VOLVER AL LISTADO
-          </button>
-        </div>
-
+   <button 
+  onClick={() => window.history.back()} 
+  className="no-print" 
+  style={{ 
+    background: '#374151', 
+    color: 'white', 
+    padding: '10px 20px', 
+    borderRadius: '12px', 
+    border: 'none', 
+    cursor: 'pointer', 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '8px', 
+    fontWeight: 'bold' 
+  }}
+>
+  ⬅️ VOLVER ATRÁS
+</button>
         {/* Cabecera exclusiva para Impresión */}
         <div className="print-header-muni">
            <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
@@ -472,3 +467,4 @@ export default function FichaAgentePage() {
     </div>
   );
 }
+
