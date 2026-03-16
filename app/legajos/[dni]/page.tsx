@@ -120,26 +120,75 @@ export default function FichaAgentePage() {
     setSubiendoNovedad(false);
   };
 
-  const handleSavePersonales = async () => {
+const handleSavePersonales = async () => {
     try {
-      await supabase.from("legajos").update({
-        apellido: formEdit.apellido, nombre: formEdit.nombre, sexo: formEdit.sexo, domicile: formEdit.domicilio, barrio: formEdit.barrio, telefono: formEdit.telefono, contacto_emergencia: formEdit.contacto_emergencia, email: formEdit.email, nacionalidad: formEdit.nacionalidad, lugar_nacimiento: formEdit.lugar_nacimiento, fecha_nacimiento: formEdit.fecha_nacimiento, estado_civil: formEdit.estado_civil, nivel_estudios: formEdit.nivel_estudios, nombre_padre: familia.padre, nombre_madre: familia.madre, nombre_conyuge: familia.conyuge, nombres_hijos: hijos
+      // 1. Cambié 'domicile' por 'domicilio' para que coincida con tu DB
+      const { error } = await supabase.from("legajos").update({
+        apellido: formEdit.apellido, 
+        nombre: formEdit.nombre, 
+        sexo: formEdit.sexo, 
+        domicilio: formEdit.domicilio, // <-- Corregido aquí
+        barrio: formEdit.barrio, 
+        telefono: formEdit.telefono, 
+        contacto_emergencia: formEdit.contacto_emergencia, 
+        email: formEdit.email, 
+        nacionalidad: formEdit.nacionalidad, 
+        lugar_nacimiento: formEdit.lugar_nacimiento, 
+        fecha_nacimiento: formEdit.fecha_nacimiento, 
+        estado_civil: formEdit.estado_civil, 
+        nivel_estudios: formEdit.nivel_estudios, 
+        nombre_padre: familia.padre, 
+        nombre_madre: familia.madre, 
+        nombre_conyuge: familia.conyuge, 
+        nombres_hijos: hijos
       }).eq("dni", dni);
+
+      if (error) {
+        alert("Error de Supabase: " + error.message);
+        return;
+      }
+
       setShowModalPersonales(false);
       await cargarTodo();
-    } catch (err: any) { alert(err.message); }
+      alert("¡Datos personales actualizados!");
+
+    } catch (err: any) { 
+      alert("Error inesperado: " + err.message); 
+    }
   };
 
   const handleSaveLaborales = async () => {
     try {
       const payload = {
-        dni_agente: dni, legajo_interno: formEdit.legajo_interno, legajo_cobro: formEdit.legajo_cobro, secretaria: formEdit.secretaria, subsecretaria: formEdit.subsecretaria, cargo: formEdit.cargo, profesion: formEdit.profesion, fecha_ingreso: formEdit.fecha_ingreso, fecha_egreso: formEdit.activo ? null : formEdit.fecha_egreso, fecha_titulo: formEdit.fecha_titulo, nivel: formEdit.nivel, registro_horario: formEdit.registro_horario, situacion: formEdit.situacion
+        dni_agente: dni, 
+        legajo_interno: formEdit.legajo_interno, 
+        legajo_cobro: formEdit.legajo_cobro, 
+        secretaria: formEdit.secretaria, 
+        subsecretaria: formEdit.subsecretaria, 
+        cargo: formEdit.cargo, 
+        profesion: formEdit.profesion, 
+        fecha_ingreso: formEdit.fecha_ingreso, 
+        fecha_egreso: formEdit.activo ? null : formEdit.fecha_egreso, 
+        fecha_titulo: formEdit.fecha_titulo, 
+        nivel: formEdit.nivel, 
+        registro_horario: formEdit.registro_horario, 
+        situacion: formEdit.situacion
       };
-      await supabase.from("datos_laborales").upsert(payload, { onConflict: 'dni_agente' });
+
+      const { error } = await supabase.from("datos_laborales").upsert(payload, { onConflict: 'dni_agente' });
+      
+      if (error) {
+        alert("Error en datos laborales: " + error.message);
+        return;
+      }
+
       setShowModalLaborales(false);
       await cargarTodo();
-    } catch (err: any) { alert(err.message); }
-  };
+      alert("¡Situación laboral actualizada!");
+
+    } catch (err: any) { 
+      alert("Error inesperado: " + err.message); 
+    }
   
   const agregarHijo = () => setHijos([...hijos, { nombre: '', fecha_nac: '' }]);
   const actualizarHijo = (idx: number, campo: string, v: string) => {
