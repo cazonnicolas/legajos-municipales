@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
   // Datos del Usuario que inició sesión (Simulados - Aquí podrías traer los datos de Supabase Auth)
   const userSession = {
-    nombre: "NICOLAS CAZON",
+    nombre: "AGENTE MUNICIPAL",
     cargo: "Administrador de Sistemas",
     sexo: "M" // Cambiar a "F" para mostrar dibujo de mujer
   };
