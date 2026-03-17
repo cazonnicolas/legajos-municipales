@@ -316,7 +316,7 @@ export default function FichaAgentePage() {
 
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
-        <button onClick={() => window.history.back()} className="no-print"
+        <button onClick={() => router.push("/dashboard")} className="no-print"
           style={{ background: "#374151", color: "white", padding: "10px 20px", borderRadius: "12px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold", marginBottom: 20 }}>
           ⬅️ VOLVER ATRÁS
         </button>
