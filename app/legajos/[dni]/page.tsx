@@ -389,7 +389,7 @@ export default function FichaAgentePage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "15px" }}>
 
                 {/* Bloque: Identificación */}
-                <div style={seccionTituloStyle} className="seccion-titulo-print">📋 Identificación</div>
+                <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">📋 Identificación</div>
                 <div><span className="label-print" style={labelStyle}>Sexo</span><p className="value-print">{agente.sexo || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Fecha Nac.</span><p className="value-print">{formatearFecha(agente.fecha_nacimiento)}</p></div>
                 <div><span className="label-print" style={labelStyle}>Edad</span><p className="value-print">{calcularEdad(agente.fecha_nacimiento)}</p></div>
@@ -399,7 +399,7 @@ export default function FichaAgentePage() {
                 <div><span className="label-print" style={labelStyle}>Nivel Estudios</span><p className="value-print">{agente.nivel_estudios || "S/D"}</p></div>
 
                 {/* Bloque: Contacto */}
-                <div style={seccionTituloStyle} className="seccion-titulo-print">📞 Contacto</div>
+                <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">📞 Contacto</div>
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Domicilio</span><p className="value-print">{agente.domicilio || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Barrio</span><p className="value-print">{agente.barrio || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Teléfono</span><p className="value-print">{agente.telefono || "S/D"}</p></div>
@@ -407,7 +407,7 @@ export default function FichaAgentePage() {
                 <div><span className="label-print" style={labelStyle}>Contacto Emergencia</span><p className="value-print">{agente.contacto_emergencia || "S/D"}</p></div>
 
                 {/* Bloque: Grupo Familiar */}
-                <div style={seccionTituloStyle} className="seccion-titulo-print">👨‍👩‍👧 Grupo Familiar</div>
+                <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">👨‍👩‍👧 Grupo Familiar</div>
                 <div><span className="label-print" style={labelStyle}>Padre</span><p className="value-print">{agente.nombre_padre || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Madre</span><p className="value-print">{agente.nombre_madre || "S/D"}</p></div>
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Cónyuge / Pareja</span><p className="value-print">{agente.nombre_conyuge || "S/D"}</p></div>
