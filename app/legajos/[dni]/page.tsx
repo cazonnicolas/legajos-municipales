@@ -111,7 +111,9 @@ export default function FichaAgentePage() {
   const [subiendoNovedad, setSubiendoNovedad] = useState<boolean>(false);
 
   const [fechaHoraImpresion, setFechaHoraImpresion] = useState<string>("");
-  const usuarioImpresion = "LIC. CAZON NICOLAS";
+
+  // ✅ Usuario logueado dinámico (Display Name de Supabase Auth)
+  const [usuarioImpresion, setUsuarioImpresion] = useState<string>("...");
 
   const [nuevaNovedad, setNuevaNovedad] = useState<NuevaNovedad>({
     id: null,
@@ -127,7 +129,25 @@ export default function FichaAgentePage() {
     setFechaHoraImpresion(
       `${ahora.toLocaleDateString()} - ${ahora.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
     );
+    // ✅ Cargamos el Display Name del usuario logueado
+    cargarUsuarioLogueado();
   }, [dni]);
+
+  // ✅ Obtiene el Display Name desde Supabase Auth
+  async function cargarUsuarioLogueado(): Promise<void> {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const displayName =
+        session.user.user_metadata?.display_name ||
+        session.user.user_metadata?.full_name ||
+        session.user.email?.split("@")[0].toUpperCase() ||
+        "USUARIO";
+      setUsuarioImpresion(displayName);
+    } catch (err) {
+      console.error("Error cargando usuario:", err);
+    }
+  }
 
   async function cargarTodo(): Promise<void> {
     setLoading(true);
@@ -242,7 +262,6 @@ export default function FichaAgentePage() {
     const nh = [...hijos]; nh[idx][campo] = v; setHijos(nh);
   };
 
-  // ✅ Estilos tipados con CSSProperties
   const glass: CSSProperties = {
     background: "rgba(0,0,0,0.7)", backdropFilter: "blur(12px)",
     borderRadius: "20px", padding: "25px",
@@ -309,9 +328,19 @@ export default function FichaAgentePage() {
             font-size: 8pt; color: #777 !important;
             border-top: 1px solid #ccc; padding-top: 5px;
           }
+          /* ✅ Nombre y DNI debajo de la foto en impresión */
+          .foto-nombre-print {
+            display: block !important;
+            text-align: center;
+            margin-top: 10px;
+          }
         }
         .print-header-muni, .footer-print-oficial { display: none; }
-        @media print { .print-header-muni, .footer-print-oficial { display: flex; } }
+        .foto-nombre-print { display: none; }
+        @media print {
+          .print-header-muni, .footer-print-oficial { display: flex; }
+          .foto-nombre-print { display: block !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -321,7 +350,7 @@ export default function FichaAgentePage() {
           ⬅️ VOLVER ATRÁS
         </button>
 
-        {/* Cabecera Impresión */}
+        {/* ✅ Cabecera Impresión — SIN DNI a la derecha */}
         <div className="print-header-muni">
           <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
             <img src="/backgrounds/logo_muni.png" style={{ width: 60 }} alt="Logo" />
@@ -332,7 +361,7 @@ export default function FichaAgentePage() {
           </div>
           <div style={{ textAlign: "right" }}>
             <h1 style={{ margin: 0, fontSize: "18pt", fontWeight: 900 }}>LEGAJO PERSONAL</h1>
-            <p style={{ margin: 0, fontSize: "10pt" }}>DNI: {agente.dni}</p>
+            {/* ✅ DNI eliminado de aquí */}
           </div>
         </div>
 
@@ -357,6 +386,17 @@ export default function FichaAgentePage() {
                   ? <img src={agente.foto_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Foto agente" />
                   : <span style={{ fontSize: 60, lineHeight: "180px" }}>👤</span>}
               </div>
+
+              {/* ✅ Nombre completo y DNI debajo de la foto — solo visible al imprimir */}
+              <div className="foto-nombre-print">
+                <p style={{ margin: "4px 0", fontSize: "11pt", fontWeight: 900, color: "black" }}>
+                  {agente.apellido}, {agente.nombre}
+                </p>
+                <p style={{ margin: 0, fontSize: "10pt", color: "#444" }}>
+                  DNI: {agente.dni}
+                </p>
+              </div>
+
               <button className="no-print" onClick={() => fileInputRef.current?.click()}
                 style={{ background: "#2563eb", color: "white", padding: "10px", borderRadius: 8, width: "100%", border: "none", cursor: "pointer", fontWeight: "bold" }}>
                 CAMBIAR FOTO
@@ -374,9 +414,7 @@ export default function FichaAgentePage() {
           </aside>
 
           <main>
-            {/* ══════════════════════════════════════════
-                SECCIÓN I: INFORMACIÓN PERSONAL Y CIVIL
-            ══════════════════════════════════════════ */}
+            {/* SECCIÓN I */}
             <section className="glass-print" style={glass}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
                 <h2 style={{ color: "#60a5fa", fontSize: 18 }}>I. INFORMACIÓN PERSONAL Y CIVIL</h2>
@@ -385,10 +423,7 @@ export default function FichaAgentePage() {
                   ✏️ EDITAR
                 </button>
               </div>
-
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "15px" }}>
-
-                {/* Bloque: Identificación */}
                 <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">📋 Identificación</div>
                 <div><span className="label-print" style={labelStyle}>Sexo</span><p className="value-print">{agente.sexo || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Fecha Nac.</span><p className="value-print">{formatearFecha(agente.fecha_nacimiento)}</p></div>
@@ -398,7 +433,6 @@ export default function FichaAgentePage() {
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Lugar de Nacimiento</span><p className="value-print">{agente.lugar_nacimiento || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Nivel Estudios</span><p className="value-print">{agente.nivel_estudios || "S/D"}</p></div>
 
-                {/* Bloque: Contacto */}
                 <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">📞 Contacto</div>
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Domicilio</span><p className="value-print">{agente.domicilio || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Barrio</span><p className="value-print">{agente.barrio || "S/D"}</p></div>
@@ -406,13 +440,11 @@ export default function FichaAgentePage() {
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Email</span><p className="value-print">{agente.email || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Contacto Emergencia</span><p className="value-print">{agente.contacto_emergencia || "S/D"}</p></div>
 
-                {/* Bloque: Grupo Familiar */}
                 <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">👨‍👩‍👧 Grupo Familiar</div>
                 <div><span className="label-print" style={labelStyle}>Padre</span><p className="value-print">{agente.nombre_padre || "S/D"}</p></div>
                 <div><span className="label-print" style={labelStyle}>Madre</span><p className="value-print">{agente.nombre_madre || "S/D"}</p></div>
                 <div style={{ gridColumn: "span 2" }}><span className="label-print" style={labelStyle}>Cónyuge / Pareja</span><p className="value-print">{agente.nombre_conyuge || "S/D"}</p></div>
 
-                {/* Hijos */}
                 {agente.nombres_hijos && agente.nombres_hijos.length > 0 && (
                   <>
                     <div style={{ ...seccionTituloStyle, gridColumn: "span 4" }} className="seccion-titulo-print">
@@ -430,9 +462,7 @@ export default function FichaAgentePage() {
               </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                SECCIÓN II: SITUACIÓN LABORAL
-            ══════════════════════════════════════════ */}
+            {/* SECCIÓN II */}
             <section className="glass-print" style={glass}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 15 }}>
                 <h2 style={{ color: "#60a5fa", fontSize: 18 }}>II. SITUACIÓN LABORAL MUNICIPAL</h2>
@@ -460,12 +490,9 @@ export default function FichaAgentePage() {
               </div>
             </section>
 
-            {/* ══════════════════════════════════════════
-                SECCIÓN III: NOVEDADES
-            ══════════════════════════════════════════ */}
+            {/* SECCIÓN III: NOVEDADES */}
             <section id="seccion-novedades" className="glass-print" style={glass}>
               <h2 style={{ color: "#60a5fa", fontSize: 18, marginBottom: 20 }}>III. HISTORIAL DE NOVEDADES</h2>
-
               <div className="no-print" style={{ background: "#111", padding: "20px", borderRadius: "15px", marginBottom: 25, border: "1px solid #333" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "150px 1fr 180px", gap: 15, marginBottom: 15 }}>
                   <div>
@@ -505,7 +532,6 @@ export default function FichaAgentePage() {
                   </p>
                 )}
               </div>
-
               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 {novedades.map((n: Novedad) => {
                   const fechaLimpia = formatearFecha(n.fecha);
@@ -552,22 +578,19 @@ export default function FichaAgentePage() {
           </main>
         </div>
 
-        {/* Pie Impresión */}
+        {/* ✅ Pie de página con usuario dinámico */}
         <footer className="footer-print-oficial">
           <span>Usuario: {usuarioImpresion}</span>
           <span>Generado el: {fechaHoraImpresion}</span>
           <span>Hoja 1 de 1</span>
         </footer>
 
-        {/* ══════════════════════════════════════════
-            MODAL PERSONALES
-        ══════════════════════════════════════════ */}
+        {/* MODAL PERSONALES */}
         {showModalPersonales && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.95)", zIndex: 2000, display: "flex", justifyContent: "center", alignItems: "center", padding: 20 }}>
             <div style={{ background: "#111", padding: 30, borderRadius: 24, width: "100%", maxWidth: 900, maxHeight: "90vh", overflowY: "auto", border: "1px solid #333" }}>
               <h2 style={{ color: "#60a5fa", marginBottom: 20 }}>Editar Datos Personales y Familiares</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 15 }}>
-
                 <div><label style={labelStyle}>Apellido</label><input style={inputStyle} value={formEdit.apellido || ""} onChange={(e) => setFormEdit({ ...formEdit, apellido: e.target.value })} /></div>
                 <div><label style={labelStyle}>Nombre</label><input style={inputStyle} value={formEdit.nombre || ""} onChange={(e) => setFormEdit({ ...formEdit, nombre: e.target.value })} /></div>
                 <div>
@@ -600,12 +623,10 @@ export default function FichaAgentePage() {
                 <div><label style={labelStyle}>Teléfono</label><input style={inputStyle} value={formEdit.telefono || ""} placeholder="Ej: 387-4123456" onChange={(e) => setFormEdit({ ...formEdit, telefono: e.target.value })} /></div>
                 <div style={{ gridColumn: "span 2" }}><label style={labelStyle}>Email</label><input style={inputStyle} value={formEdit.email || ""} placeholder="ejemplo@correo.com" onChange={(e) => setFormEdit({ ...formEdit, email: e.target.value })} /></div>
                 <div style={{ gridColumn: "span 3" }}><label style={labelStyle}>Contacto de Emergencia</label><input style={inputStyle} value={formEdit.contacto_emergencia || ""} placeholder="Nombre y teléfono" onChange={(e) => setFormEdit({ ...formEdit, contacto_emergencia: e.target.value })} /></div>
-
                 <div style={{ gridColumn: "span 3", borderTop: "1px solid #333", marginTop: 10, paddingTop: 15, color: "#93c5fd", fontWeight: "bold" }}>Grupo Familiar</div>
                 <input style={inputStyle} value={familia.padre} placeholder="Nombre Padre" onChange={(e) => setFamilia({ ...familia, padre: e.target.value })} />
                 <input style={inputStyle} value={familia.madre} placeholder="Nombre Madre" onChange={(e) => setFamilia({ ...familia, madre: e.target.value })} />
                 <input style={inputStyle} value={familia.conyuge} placeholder="Cónyuge / Pareja" onChange={(e) => setFamilia({ ...familia, conyuge: e.target.value })} />
-
                 <div style={{ gridColumn: "span 3" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                     <span style={labelStyle}>HIJOS CARGADOS</span>
@@ -631,9 +652,7 @@ export default function FichaAgentePage() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════
-            MODAL LABORALES
-        ══════════════════════════════════════════ */}
+        {/* MODAL LABORALES */}
         {showModalLaborales && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.95)", zIndex: 2000, display: "flex", justifyContent: "center", alignItems: "center", padding: 20 }}>
             <div style={{ background: "#111", padding: 30, borderRadius: 24, width: "100%", maxWidth: 800, border: "1px solid #333" }}>
