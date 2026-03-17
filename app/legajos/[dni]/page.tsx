@@ -257,6 +257,31 @@ export default function FichaAgentePage() {
     }
   };
 
+  // ✅ Eliminar legajo con código secreto
+  const handleEliminarLegajo = async (): Promise<void> => {
+    const codigo = prompt(
+      `⚠️ ACCIÓN IRREVERSIBLE ⚠️\n\nEstá a punto de eliminar el legajo de ${agente?.apellido}, ${agente?.nombre}.\n\nIngrese el código de autorización para continuar:`
+    );
+    if (codigo === null) return; // Canceló
+    if (codigo !== "ELIMINAR.SI") {
+      alert("❌ Código incorrecto. El legajo NO fue eliminado.");
+      return;
+    }
+    try {
+      // Eliminar novedades asociadas
+      await supabase.from("novedades").delete().eq("dni_agente", dni);
+      // Eliminar datos laborales
+      await supabase.from("datos_laborales").delete().eq("dni_agente", dni);
+      // Eliminar legajo principal
+      const { error } = await supabase.from("legajos").delete().eq("dni", dni);
+      if (error) { alert("Error al eliminar: " + error.message); return; }
+      alert("✅ Legajo eliminado correctamente.");
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      if (err instanceof Error) alert("Error inesperado: " + err.message);
+    }
+  };
+
   const agregarHijo = (): void => setHijos([...hijos, { nombre: "", fecha_nac: "" }]);
   const actualizarHijo = (idx: number, campo: keyof Hijo, v: string): void => {
     const nh = [...hijos]; nh[idx][campo] = v; setHijos(nh);
@@ -345,10 +370,16 @@ export default function FichaAgentePage() {
 
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
-        <button onClick={() => router.push("/dashboard")} className="no-print"
-          style={{ background: "#374151", color: "white", padding: "10px 20px", borderRadius: "12px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold", marginBottom: 20 }}>
-          ⬅️ VOLVER ATRÁS
-        </button>
+        <div className="no-print" style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+          <button onClick={() => router.push("/dashboard")}
+            style={{ background: "#374151", color: "white", padding: "10px 20px", borderRadius: "12px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
+            ⬅️ VOLVER ATRÁS
+          </button>
+          <button onClick={handleEliminarLegajo}
+            style={{ background: "#7f1d1d", color: "white", padding: "10px 20px", borderRadius: "12px", border: "1px solid #ef4444", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
+            🗑️ ELIMINAR LEGAJO
+          </button>
+        </div>
 
         {/* ✅ Cabecera Impresión — SIN DNI a la derecha */}
         <div className="print-header-muni">
